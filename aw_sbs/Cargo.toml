@@ -1,0 +1,6 @@
+[package]
+name = "aw_sbs"
+version = "0.1.0"
+authors = ["Sgeo <sgeoster@gmail.com>"]
+
+[dependencies]

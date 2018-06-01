@@ -1,0 +1,6 @@
+[package]
+name = "easyhook"
+version = "0.1.0"
+authors = ["Sgeo <sgeoster@gmail.com>"]
+
+[dependencies]
