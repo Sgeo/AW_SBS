@@ -13,9 +13,12 @@ lazy_static! {
 }
 
 #[no_mangle]
-pub extern "system" fn NativeInjectionEntryPoint(_remote_info: *mut c_void) {
+pub extern "stdcall" fn NativeInjectionEntryPoint(_remote_info: *mut c_void) {
     unsafe {
+        use std::fs::File;
+        File::create("about_to_install_hook.txt").unwrap();
         lh_install_hook(**glViewport as *mut _, glViewportHook as *mut _);
+        File::create("installed_hook.txt").unwrap();
     }
 }
 

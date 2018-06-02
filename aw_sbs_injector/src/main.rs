@@ -12,6 +12,7 @@ fn main() {
     if let Some(awproc) = aw {
         println!("Found AW process id: {}", awproc.pid());
         rh_inject_library(awproc.pid(), "aw_sbs.dll");
+        println!("Error?: {:?}", easyhook::error_string());
     } else {
         println!("Unable to find AW!");
     }

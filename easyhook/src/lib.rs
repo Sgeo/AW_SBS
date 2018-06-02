@@ -21,3 +21,12 @@ pub unsafe fn lh_install_hook(entry: *mut c_void, hook: *mut c_void) {
     sys::LhInstallHook(entry, hook, ptr::null_mut(), &mut *hook_trace_info as *mut _);
     mem::forget(hook_trace_info);
 }
+
+pub fn error_string() -> Option<String> {
+    let err = unsafe {sys::RtlGetLastErrorString()};
+    if(!err.is_null()) {
+        Some(unsafe { WideCString::from_ptr_str(err) }.to_string_lossy())
+    } else {
+        None
+    }
+}
