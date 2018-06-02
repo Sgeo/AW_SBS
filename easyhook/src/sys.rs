@@ -1,8 +1,5 @@
 use std::os::raw::{c_ulong, c_void};
 use std::ptr;
-use std::ffi::OsStr;
-
-use widestring::WideCString;
 
 #[repr(C)]
 pub struct HOOK_TRACE_INFO {
