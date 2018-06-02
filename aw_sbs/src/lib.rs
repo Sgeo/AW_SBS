@@ -16,7 +16,7 @@ lazy_static! {
     static ref glViewport: lib::Symbol<'static, extern "system" fn(i32, i32, u32, u32)> = unsafe { GL.get(b"glViewport\0") }.unwrap();
 }
 
-#[export_name="_NativeInjectionEntryPoint_4"]
+#[export_name="_NativeInjectionEntryPoint_4"] // EasyHook32.dll has been hex edited to look for this
 pub extern "stdcall" fn NativeInjectionEntryPoint(_remote_info: *mut c_void) {
     unsafe {
         use std::fs::File;
