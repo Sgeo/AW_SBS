@@ -10,7 +10,7 @@ use std::mem;
 use widestring::WideCString;
 
 
-pub fn rh_inject_library<S: AsRef<OsStr>>(pid: c_ulong, library: S) {
+pub fn rh_inject_library<S: AsRef<OsStr>>(pid: usize, library: S) {
     unsafe {
         sys::RhInjectLibrary(pid, 0, 0, WideCString::from_str(library).unwrap().into_raw(), ptr::null_mut(), ptr::null_mut(), 0);
     }
