@@ -8,7 +8,7 @@ extern crate lazy_static;
 
 use std::io::Write;
 use std::os::raw::{c_ulong, c_void};
-use easyhook::lh_install_hook;
+use easyhook::{lh_install_hook};
 use easyhook::error_string;
 
 lazy_static! {

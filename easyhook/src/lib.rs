@@ -16,15 +16,23 @@ pub fn rh_inject_library<S: AsRef<OsStr>>(pid: usize, library: S) {
     }
 }
 
-pub unsafe fn lh_install_hook(entry: *mut c_void, hook: *mut c_void) {
+pub unsafe fn lh_install_hook(entry: *mut c_void, hook: *mut c_void) -> &'static sys::HOOK_TRACE_INFO {
     let mut hook_trace_info = Box::new(sys::HOOK_TRACE_INFO::new());
     sys::LhInstallHook(entry, hook, ptr::null_mut(), &mut *hook_trace_info as *mut _);
-    mem::forget(hook_trace_info);
+    sys::LhSetExclusiveACL((&mut [0]).as_mut_ptr(), 1, &mut *hook_trace_info as *mut _);
+    Box::leak(hook_trace_info)
+}
+
+fn lh_set_global_exclusive_acl(threads: &mut [usize]) {
+    let length = threads.len();
+    unsafe {
+        sys::LhSetGlobalExclusiveACL(threads.as_mut_ptr(), length);
+    }
 }
 
 pub fn error_string() -> Option<String> {
     let err = unsafe {sys::RtlGetLastErrorString()};
-    if(!err.is_null()) {
+    if !err.is_null() {
         Some(unsafe { WideCString::from_ptr_str(err) }.to_string_lossy())
     } else {
         None
