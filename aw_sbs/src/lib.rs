@@ -18,6 +18,7 @@ lazy_static! {
     static ref glViewport: lib::Symbol<'static, extern "system" fn(i32, i32, u32, u32)> = unsafe { GL.get(b"glViewport\0") }.unwrap();
     static ref rw_camera_begin_update: lib::Symbol<'static, extern "C" fn(*mut c_void) -> *mut c_void> = unsafe { RW.get(b"rw_camera_begin_update\0") }.unwrap();
     static ref rw_frame_translate: lib::Symbol<'static, extern "C" fn(*mut c_void, *mut f32, u32) -> *mut c_void> = unsafe { RW.get(b"rw_frame_translate\0") }.unwrap();
+    static ref rw_camera_set_view_window: lib::Symbol<'static, extern "C" fn(*mut c_void, *mut f32) -> *mut c_void> = unsafe { RW.get(b"rw_camera_set_view_window\0") }.unwrap();
 }
 
 #[export_name="_NativeInjectionEntryPoint_4"] // EasyHook32.dll has been hex edited to look for this
@@ -27,6 +28,7 @@ pub extern "stdcall" fn NativeInjectionEntryPoint(_remote_info: *mut c_void) {
         File::create("about_to_install_hook.txt").unwrap();
         lh_install_hook(**glViewport as *mut _, glViewportHook as *mut _);
         lh_install_hook(**rw_camera_begin_update as *mut _, rw_camera_begin_update_hook as *mut _);
+        lh_install_hook(**rw_camera_set_view_window as *mut _, rw_camera_set_view_window_hook as *mut _);
         let error = error_string();
         File::create("installed_hook.txt").unwrap();
         let mut errors = File::create("hook_errors.txt").unwrap();
@@ -40,7 +42,7 @@ static counter: AtomicUsize = AtomicUsize::new(0);
 
 pub extern "system" fn glViewportHook(x: i32, y: i32, width: u32, height: u32) {
     let current = counter.load(Ordering::SeqCst);
-    counter.store(current + 1, Ordering::SeqCst);
+    counter.store(current.wrapping_add(1), Ordering::SeqCst);
     if current&2 == 0 {
         glViewport(x, y, width/2, height);
     } else {
@@ -63,4 +65,15 @@ pub extern "C" fn rw_camera_begin_update_hook(camera: *mut c_void) -> *mut c_voi
         rw_frame_translate(frame, (&mut [-0.006, 0.0, 0.0]).as_mut_ptr(), 1);
     }
     rw_camera_begin_update(camera)
+}
+
+pub extern "C" fn rw_camera_set_view_window_hook(camera: *mut c_void, view_window: *mut f32) -> *mut c_void {
+    if !view_window.is_null() {
+        unsafe {
+            *view_window /= 2.0;
+        }
+    }
+    unsafe {
+        rw_camera_set_view_window(camera, view_window)
+    }
 }
