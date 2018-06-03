@@ -26,6 +26,7 @@ pub extern "stdcall" fn NativeInjectionEntryPoint(_remote_info: *mut c_void) {
         use std::fs::File;
         File::create("about_to_install_hook.txt").unwrap();
         lh_install_hook(**glViewport as *mut _, glViewportHook as *mut _);
+        lh_install_hook(**rw_camera_begin_update as *mut _, rw_camera_begin_update_hook as *mut _);
         let error = error_string();
         File::create("installed_hook.txt").unwrap();
         let mut errors = File::create("hook_errors.txt").unwrap();
@@ -59,7 +60,7 @@ pub extern "C" fn rw_camera_begin_update_hook(camera: *mut c_void) -> *mut c_voi
     let current = counter.load(Ordering::SeqCst);
     if current&2 != 0 {
         let frame = camera_get_frame(camera);
-        rw_frame_translate(frame, (&mut [0.006, 0.0, 0.0]).as_mut_ptr(), 1);
+        rw_frame_translate(frame, (&mut [-0.006, 0.0, 0.0]).as_mut_ptr(), 1);
     }
-    camera
+    rw_camera_begin_update(camera)
 }
